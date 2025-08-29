@@ -8,7 +8,7 @@ class EchoConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         await self.send(text_data=text_data)
 
-    async def disconnect(self):
+    async def disconnect(self, code):
         await self.disconnect()
     
 class GlobalChatConsumer(AsyncWebsocketConsumer):
