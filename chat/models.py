@@ -18,6 +18,7 @@ class Message(models.Model):
     text = models.TextField()
     from_user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     chat = models.ForeignKey('Chat', on_delete=models.CASCADE)
+    created_at = models.DateTimeField()
 
     def __str__(self):
         return f"Message from {self.from_user} in chat {self.chat}"
