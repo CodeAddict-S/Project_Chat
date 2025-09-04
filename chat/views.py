@@ -7,6 +7,7 @@ from .serializers import ChatSerializer, MessageSerializer
 
 
 class ChatViewSet(viewsets.ModelViewSet):
+    queryset= Chat.objects.all()
     serializer_class = ChatSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -21,10 +22,10 @@ class ChatViewSet(viewsets.ModelViewSet):
             """Chat yaratishda user_1 avtomatik request.user bo'ladi"""
             data = {
                 "name": request.data['name'],
-                "user_1": request.user,
+                "user_1": request.user.id,
                 "user_2": request.data['user']
             }
-            serializer = self.get_serializer(data)
+            serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
