@@ -1,16 +1,16 @@
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.response import Response
-from rest_framework import status,permissions
-from rest_framework.generics import GenericAPIView,RetrieveAPIView
+from rest_framework import status, permissions
+from rest_framework.generics import GenericAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-# from users.models import User
 from users.serializers import LoginSerializer, UserSerializer
 
 
 class RegisterAPIView(GenericAPIView):
     serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -24,13 +24,19 @@ class RegisterAPIView(GenericAPIView):
         }
 
         return Response(
-            data={"msg": "User registered successfully", "tokens": tokens},
+            data={
+                "msg": "User registered successfully",
+                "user": UserSerializer(user).data,
+                "tokens": tokens,
+            },
             status=status.HTTP_201_CREATED,
         )
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class LoginAPIView(GenericAPIView):
     serializer_class = LoginSerializer
-    permission_classes = [permissions.AllowAny]  # login endpointni hammaga ruxsat berish
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -41,7 +47,9 @@ class LoginAPIView(GenericAPIView):
         return Response({
             "refresh": str(refresh),
             "access": str(refresh.access_token),
+            "user": UserSerializer(user).data,
         }, status=status.HTTP_200_OK)
+
 
 class GetMe(RetrieveAPIView):
     serializer_class = UserSerializer
@@ -49,6 +57,3 @@ class GetMe(RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
-
-    
-
