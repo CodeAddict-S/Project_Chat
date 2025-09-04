@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.db import models
 from .models import Chat, Message
 from .serializers import ChatSerializer, MessageSerializer
+from django.db.models import Q
 
 # Create chat uchun views
 class ChatViewSet(viewsets.ModelViewSet):
@@ -20,6 +21,20 @@ class ChatViewSet(viewsets.ModelViewSet):
     
     def create(self, request, *args, **kwargs):
             """Chat yaratishda user_1 avtomatik request.user bo'ladi"""
+            user_1 = request.user
+            user_2_id = request.data.get("user")
+
+            existing_chat = Chat.objects.filter(
+                (Q(user_1=user_1) & Q(user_2=user_2_id)) |
+                (Q(user_1=user_2_id) & Q(user_2=user_1))
+            ).first()
+            
+            if existing_chat:
+                return Response(
+                    {"detail": "Bu foydalanuvchi bilan chat allaqachon mavjud"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
             data = {
                 "name": request.data['name'],
                 "user_1": request.user.id,
@@ -28,7 +43,7 @@ class ChatViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     def update(self, request, *args, **kwargs):
         if 'user_1' in request.data or 'user_2' in request.data:
