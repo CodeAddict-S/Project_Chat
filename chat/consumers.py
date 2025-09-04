@@ -104,3 +104,7 @@ class DMChatConsumer(AsyncWebsocketConsumer):
             return chat.user_1_id == user_id or chat.user_2_id == user_id
         except Chat.DoesNotExist:
             return False
+#     {
+#     "name": "string",
+#     "user": 123
+# }

@@ -17,9 +17,17 @@ class ChatViewSet(viewsets.ModelViewSet):
             models.Q(user_1=user) | models.Q(user_2=user)
         )
     
-    def perform_create(self, serializer):
-        """Chat yaratishda user_1 avtomatik request.user bo'ladi"""
-        serializer.save(user_1=self.request.user)
+    def create(self, request, *args, **kwargs):
+            """Chat yaratishda user_1 avtomatik request.user bo'ladi"""
+            data = {
+                "name": request.data['name'],
+                "user_1": request.user,
+                "user_2": request.data['user']
+            }
+            serializer = self.get_serializer(data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
     
     def perform_update(self, serializer):
         """Chat o'zgartirishdan oldin ruxsat tekshirish"""
