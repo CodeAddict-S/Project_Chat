@@ -1,7 +1,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from urllib.parse import parse_qs
 from django.contrib.auth import get_user_model
-from .models import Chat
+from .models import Chat, Message
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import InvalidToken
 import json
@@ -78,6 +78,7 @@ class DMChatConsumer(AsyncWebsocketConsumer):
                 "type": "callback_for_chat_message",
                 "content": text_data,
                 "username": self.user.username,
+                # "messages": Message.objects.all()
             }
         )
 
@@ -88,6 +89,8 @@ class DMChatConsumer(AsyncWebsocketConsumer):
                 "username": event['username']
             }
         ))
+        user = Message.objects.aget(username=event['username'])
+        Message.objects.acreate(text=event['content'],from_user = user,chat=self.chat)
 
     @staticmethod
     async def get_user(user_id):
@@ -96,12 +99,12 @@ class DMChatConsumer(AsyncWebsocketConsumer):
         except User.DoesNotExist:
             return None
 
-    @staticmethod
-    async def check_chat_exists(room_name, user_id):
+    # @staticmethod
+    async def check_chat_exists(self,room_name, user_id):
         try:
-            chat = await Chat.objects.aget(name=room_name) # <-- Chat.name is not unique!
+            self.chat = await Chat.objects.aget(name=room_name) # <-- Chat.name is not unique!
                                                            # this will result in errors if multiple chats have one name
-            return chat.user_1_id == user_id or chat.user_2_id == user_id
+            return self.chat.user_1_id == user_id or self.chat.user_2_id == user_id
         except Chat.DoesNotExist:
             return False
 #     {
