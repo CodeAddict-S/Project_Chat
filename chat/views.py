@@ -5,7 +5,7 @@ from django.db import models
 from .models import Chat, Message
 from .serializers import ChatSerializer, MessageSerializer
 
-
+# Create chat uchun views
 class ChatViewSet(viewsets.ModelViewSet):
     queryset= Chat.objects.all()
     serializer_class = ChatSerializer
@@ -29,6 +29,13 @@ class ChatViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+    
+    def update(self, request, *args, **kwargs):
+        if 'user_1' in request.data or 'user_2' in request.data:
+            raise PermissionDenied()
+        super().update()
+        
+        
     
     def perform_update(self, serializer):
         """Chat o'zgartirishdan oldin ruxsat tekshirish"""
