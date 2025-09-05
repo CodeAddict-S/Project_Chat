@@ -3,8 +3,8 @@ import websocket
 import threading
 import json
 
-HTTP_BACKEND = 'http://localhost:8000'
-WS_BACKEND = 'ws://localhost:8000/ws'
+HTTP_BACKEND = 'https://projectchat-production-41ce.up.railway.app'
+WS_BACKEND = 'wss://projectchat-production-41ce.up.railway.app/ws'
 
 access_token = ''
 
